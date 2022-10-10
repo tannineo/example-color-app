@@ -1,50 +1,40 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/tauri";
-import "./App.css";
+import { useState } from 'react'
+import { SketchPicker } from 'react-color'
+import { invoke } from '@tauri-apps/api'
+
+import './App.css'
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  const [color, setColor] = useState('#1fa9f4')
+  const [gradient, setGradient] = useState<any[]>([])
 
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
+    <div className='container'>
+      <SketchPicker
+        color={color}
+        onChange={(color, event) => {
+          console.log('color => ', color)
+          setColor(color.hex)
+          invoke('generate_gradient', color.rgb as any).then((grad: unkown) => {
+            console.log('gradient => ', grad)
+            setGradient(grad)
+          })
+        }}
+      />
 
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <div className="row">
-        <div>
-          <input
-            id="greet-input"
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="Enter a name..."
-          />
-          <button type="button" onClick={() => greet()}>
-            Greet
-          </button>
+      {gradient.map(color => (
+        <div
+          style={{
+            padding: '2rem',
+            background: `rgb(${color[0]}, ${color[1]}, ${color[2]})`,
+            textShadow: `0px 0px 4px #000000`,
+          }}
+        >
+          rgb({color[0]}, {color[1]}, {color[2]})
         </div>
-      </div>
-      <p>{greetMsg}</p>
+      ))}
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
